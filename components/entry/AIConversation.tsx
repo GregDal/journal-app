@@ -63,6 +63,10 @@ export default function AIConversation({
 
       const data = await res.json();
 
+      if (!res.ok) {
+        throw new Error(data.error || `Server error ${res.status}`);
+      }
+
       const assistantMsg: AIMessage = {
         role: "assistant",
         content: data.reply,
@@ -70,12 +74,13 @@ export default function AIConversation({
       };
 
       setMessages([...updatedMessages, assistantMsg]);
-    } catch {
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "Unknown error";
       setMessages([
         ...updatedMessages,
         {
           role: "assistant",
-          content: "Sorry, I couldn't connect. Please try again.",
+          content: `Error: ${errMsg}`,
           timestamp: new Date().toISOString(),
         },
       ]);
