@@ -89,12 +89,50 @@ export default function AIConversation({
     }
   }
 
+  async function autoAnalyze() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entryId,
+          entryType,
+          entryContent,
+          autoAnalyze: true,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.reply) {
+        const assistantMsg: AIMessage = {
+          role: "assistant",
+          content: data.reply,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages([assistantMsg]);
+      }
+    } catch {
+      // Silently fail — user can still chat manually
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleOpen() {
+    setOpen(true);
+    if (existingMessages.length === 0 && messages.length === 0) {
+      autoAnalyze();
+    }
+  }
+
   if (!open) {
     return (
       <Button
         variant="outline"
         className="gap-2"
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
       >
         <MessageCircle className="h-4 w-4" />
         Talk to AI

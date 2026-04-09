@@ -6,21 +6,16 @@ import { createClient } from "@/lib/supabase/client";
 import { PHYSICAL_STATE_TAGS, EMOTIONAL_STATE_TAGS } from "@/lib/types";
 import MoodPicker from "@/components/mood/MoodPicker";
 import StateTagPicker from "@/components/mood/StateTagPicker";
+import TiptapEditor from "@/components/editor/TiptapEditor";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { scrollIntoViewOnFocus } from "@/lib/hooks/useAutoScroll";
 
-export default function QuickCaptureForm() {
+export default function FreeformForm() {
   const [mood, setMood] = useState<number | null>(null);
   const [physicalState, setPhysicalState] = useState<string[]>([]);
   const [physicalText, setPhysicalText] = useState("");
   const [emotionalState, setEmotionalState] = useState<string[]>([]);
   const [emotionalText, setEmotionalText] = useState("");
-  const [text, setText] = useState("");
-  const [gratitude, setGratitude] = useState("");
-  const [intention, setIntention] = useState("");
+  const [content, setContent] = useState<Record<string, unknown> | null>(null);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -36,15 +31,13 @@ export default function QuickCaptureForm() {
       .from("entries")
       .insert({
         user_id: user.id,
-        entry_type: "quick",
+        entry_type: "freeform",
+        content,
         prompts: {
           physical_state: physicalState,
           physical_text: physicalText,
           emotional_state: emotionalState,
           emotional_text: emotionalText,
-          text,
-          gratitude,
-          intention,
         },
       })
       .select()
@@ -68,11 +61,11 @@ export default function QuickCaptureForm() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Quick Capture</h2>
+        <h2 className="text-xl font-semibold">Freeform Entry</h2>
         <p className="text-sm text-muted-foreground">
-          Jot down how you&apos;re feeling right now
+          Write freely — no prompts, no structure, just you
         </p>
       </div>
 
@@ -96,40 +89,16 @@ export default function QuickCaptureForm() {
         onFreeTextChange={setEmotionalText}
       />
 
-      <div className="space-y-2">
-        <Label>What&apos;s on your mind?</Label>
-        <Textarea
-          placeholder="Write freely..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onFocus={scrollIntoViewOnFocus}
-          rows={3}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>One thing I&apos;m grateful for (optional)</Label>
-        <Input
-          placeholder="e.g., A good conversation with a friend"
-          value={gratitude}
-          onChange={(e) => setGratitude(e.target.value)}
-          onFocus={scrollIntoViewOnFocus}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Intention or affirmation (optional)</Label>
-        <Input
-          placeholder="e.g., I will stay present today"
-          value={intention}
-          onChange={(e) => setIntention(e.target.value)}
-          onFocus={scrollIntoViewOnFocus}
-        />
-      </div>
+      <TiptapEditor
+        content={content || undefined}
+        onChange={setContent}
+        placeholder="Start writing..."
+        className="min-h-[300px]"
+      />
 
       <Button
         onClick={handleSave}
-        disabled={saving || (!text && !mood)}
+        disabled={saving || !content}
         className="w-full"
       >
         {saving ? "Saving..." : "Save entry"}

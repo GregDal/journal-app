@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { IssueThread } from "@/lib/types";
+import { scrollIntoViewOnFocus } from "@/lib/hooks/useAutoScroll";
 
 const PROMPTS = [
   {
@@ -220,6 +221,7 @@ export default function CBTForm({
             placeholder="Take your time..."
             value={answers[prompt.key] || ""}
             onChange={(e) => updateAnswer(prompt.key, e.target.value)}
+            onFocus={scrollIntoViewOnFocus}
             rows={3}
           />
         </div>

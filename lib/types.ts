@@ -1,4 +1,4 @@
-export type EntryType = "quick" | "reflection" | "comprehensive" | "cbt";
+export type EntryType = "quick" | "reflection" | "comprehensive" | "cbt" | "freeform" | "ai_guided";
 
 export interface Entry {
   id: string;
@@ -101,6 +101,18 @@ export const ENTRY_TYPE_CONFIG: Record<
     icon: "Brain",
     duration: "Ongoing",
   },
+  freeform: {
+    label: "Freeform",
+    description: "Write freely with no prompts or structure",
+    icon: "PenLine",
+    duration: "Any",
+  },
+  ai_guided: {
+    label: "AI-Guided",
+    description: "Let AI guide you through reflective questions",
+    icon: "Sparkles",
+    duration: "~20 min",
+  },
 };
 
 export const MOOD_EMOJIS = ["😞", "😐", "🙂", "😊", "😄"] as const;
@@ -114,6 +126,17 @@ export const PHYSICAL_STATE_TAGS = [
   "Tense",
   "Relaxed",
   "Hungry",
+  "Full",
+  "Headache",
+  "Nauseous",
+  "Congested",
+  "Stiff",
+  "Light",
+  "Heavy",
+  "Numb",
+  "Tingling",
+  "Warm",
+  "Cold",
 ] as const;
 
 export const EMOTIONAL_STATE_TAGS = [
@@ -129,4 +152,15 @@ export const EMOTIONAL_STATE_TAGS = [
   "Hopeful",
   "Frustrated",
   "Content",
+  "Guilty",
+  "Ashamed",
+  "Proud",
+  "Bored",
+  "Inspired",
+  "Jealous",
+  "Nostalgic",
+  "Confused",
+  "Peaceful",
+  "Irritable",
+  "Excited",
 ] as const;

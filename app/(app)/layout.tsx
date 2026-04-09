@@ -10,9 +10,11 @@ import {
   Import,
   LineChart,
   LogOut,
+  PenLine,
   Plus,
   Search,
   Settings,
+  Sparkles,
   SunMedium,
   Zap,
 } from "lucide-react";
@@ -49,6 +51,8 @@ const ENTRY_TYPES = [
     duration: "~1 hr",
   },
   { href: "/new/cbt", label: "CBT Work-through", icon: Brain, duration: "Ongoing" },
+  { href: "/new/freeform", label: "Freeform", icon: PenLine, duration: "Any" },
+  { href: "/new/ai_guided", label: "AI-Guided", icon: Sparkles, duration: "~20 min" },
 ];
 
 function NavLink({
@@ -117,6 +121,43 @@ function Sidebar() {
   );
 }
 
+function FabMenu() {
+  const pathname = usePathname();
+  const hidden =
+    pathname.startsWith("/new/") ||
+    pathname.startsWith("/entries/") ||
+    pathname.startsWith("/issues/");
+
+  if (hidden) return null;
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <DropdownMenu>
+        <DropdownMenuTrigger className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90">
+          <Plus className="h-6 w-6" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          {ENTRY_TYPES.map((et) => (
+            <DropdownMenuItem
+              key={et.href}
+              onClick={() => (window.location.href = et.href)}
+              className="flex items-center gap-3 cursor-pointer"
+            >
+              <et.icon className="h-4 w-4" />
+              <div>
+                <div className="text-sm font-medium">{et.label}</div>
+                <div className="text-xs text-muted-foreground">
+                  {et.duration}
+                </div>
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -160,33 +201,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
 
-        {/* FAB — new entry */}
-        <div className="fixed bottom-6 right-6 z-50">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
-            >
-              <Plus className="h-6 w-6" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {ENTRY_TYPES.map((et) => (
-                <DropdownMenuItem
-                  key={et.href}
-                  onClick={() => window.location.href = et.href}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <et.icon className="h-4 w-4" />
-                  <div>
-                    <div className="text-sm font-medium">{et.label}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {et.duration}
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {/* FAB — new entry (hidden on entry/issue pages) */}
+        <FabMenu />
       </div>
     </div>
   );

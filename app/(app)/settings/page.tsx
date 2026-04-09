@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Check } from "lucide-react";
+import { THEMES, type Theme, setThemeCookie, getThemeFromCookie } from "@/lib/theme";
 
 export default function SettingsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -19,10 +20,12 @@ export default function SettingsPage() {
   const [newMetricName, setNewMetricName] = useState("");
   const [newMetricType, setNewMetricType] = useState<"number" | "text" | "boolean">("number");
   const [newMetricUnit, setNewMetricUnit] = useState("");
+  const [currentTheme, setCurrentTheme] = useState<Theme>("earth");
   const supabase = createClient();
 
   useEffect(() => {
     loadData();
+    setCurrentTheme(getThemeFromCookie(document.cookie));
   }, []);
 
   async function loadData() {
@@ -88,6 +91,76 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h2 className="text-xl font-semibold">Settings</h2>
+
+      {/* Theme */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Color theme</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-3">
+            {THEMES.map((theme) => {
+              const config = {
+                earth: {
+                  label: "Earth",
+                  colors: ["#8B6F47", "#7A8B5C", "#C4A882"],
+                  desc: "Warm tans & sage",
+                },
+                ocean: {
+                  label: "Ocean",
+                  colors: ["#3B6B8A", "#5BA89D", "#8FAFC4"],
+                  desc: "Blue-gray & seafoam",
+                },
+                lavender: {
+                  label: "Lavender",
+                  colors: ["#7B5EA7", "#C49BBB", "#B8A9D4"],
+                  desc: "Muted purple & rose",
+                },
+              }[theme];
+
+              return (
+                <button
+                  key={theme}
+                  onClick={() => {
+                    setCurrentTheme(theme);
+                    setThemeCookie(theme);
+                    document.documentElement.className =
+                      document.documentElement.className
+                        .replace(/theme-\w+/g, "")
+                        .trim() + ` theme-${theme}`;
+                  }}
+                  className={`relative flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
+                    currentTheme === theme
+                      ? "border-primary bg-accent"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  {currentTheme === theme && (
+                    <div className="absolute top-2 right-2">
+                      <Check className="h-4 w-4 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex gap-1">
+                    {config.colors.map((c, i) => (
+                      <div
+                        key={i}
+                        className="h-6 w-6 rounded-full"
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium">{config.label}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {config.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
 
       {/* Tags */}
       <Card>

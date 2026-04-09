@@ -51,7 +51,7 @@ export default function TiptapEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert prose-sm max-w-none min-h-[120px] px-4 py-3 focus:outline-none",
+          "prose prose-sm max-w-none min-h-[120px] px-4 py-3 focus:outline-none",
       },
     },
     immediatelyRender: false,

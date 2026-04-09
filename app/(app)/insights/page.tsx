@@ -12,9 +12,21 @@ export default async function InsightsPage() {
 
   const { data: moodLogs } = await supabase
     .from("mood_logs")
-    .select("*, entries(created_at)")
+    .select("*, entries(created_at, entry_type)")
     .order("created_at", { ascending: true })
     .limit(90);
 
-  return <InsightsView insights={insights || []} moodLogs={moodLogs || []} />;
+  const { data: entries } = await supabase
+    .from("entries")
+    .select("id, entry_type, prompts, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  return (
+    <InsightsView
+      insights={insights || []}
+      moodLogs={moodLogs || []}
+      entries={entries || []}
+    />
+  );
 }

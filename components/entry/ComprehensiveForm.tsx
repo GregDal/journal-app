@@ -8,23 +8,16 @@ import MoodPicker from "@/components/mood/MoodPicker";
 import StateTagPicker from "@/components/mood/StateTagPicker";
 import TiptapEditor from "@/components/editor/TiptapEditor";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 const PROMPTS = [
-  { key: "physical", label: "How am I feeling physically right now?" },
-  { key: "emotional", label: "How am I feeling emotionally right now?" },
-  { key: "good_things", label: "What good things have happened recently?" },
-  {
-    key: "difficult_things",
-    label: "What difficult or challenging things have happened recently?",
-  },
-  { key: "looking_forward", label: "What am I looking forward to?" },
-  { key: "struggling", label: "What am I struggling with?" },
-  {
-    key: "overall",
-    label: "Overall, how would I describe where I'm at right now?",
-  },
+  "How am I feeling physically right now?",
+  "How am I feeling emotionally right now?",
+  "What good things have happened recently?",
+  "What difficult or challenging things have happened recently?",
+  "What am I looking forward to?",
+  "What am I struggling with?",
+  "Overall, how would I describe where I'm at right now?",
 ];
 
 export default function ComprehensiveForm() {
@@ -33,14 +26,36 @@ export default function ComprehensiveForm() {
   const [physicalText, setPhysicalText] = useState("");
   const [emotionalState, setEmotionalState] = useState<string[]>([]);
   const [emotionalText, setEmotionalText] = useState("");
-  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [content, setContent] = useState<Record<string, unknown> | null>(null);
+  const [guidanceOpen, setGuidanceOpen] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [editorKey, setEditorKey] = useState(0);
   const router = useRouter();
   const supabase = createClient();
 
-  function updateAnswer(key: string, value: string) {
-    setAnswers((prev) => ({ ...prev, [key]: value }));
+  function insertPrompt(prompt: string) {
+    // We'll insert as heading text via updating content
+    // For simplicity, append prompt as a heading to existing content
+    const currentContent = content as { type?: string; content?: unknown[] } | null;
+    const newNode = {
+      type: "heading",
+      attrs: { level: 2 },
+      content: [{ type: "text", text: prompt }],
+    };
+    const emptyParagraph = { type: "paragraph" };
+
+    if (currentContent?.type === "doc" && Array.isArray(currentContent.content)) {
+      setContent({
+        ...currentContent,
+        content: [...currentContent.content, newNode, emptyParagraph],
+      });
+    } else {
+      setContent({
+        type: "doc",
+        content: [newNode, emptyParagraph],
+      });
+    }
+    setEditorKey((k) => k + 1);
   }
 
   async function handleSave() {
@@ -57,7 +72,6 @@ export default function ComprehensiveForm() {
         entry_type: "comprehensive",
         content,
         prompts: {
-          ...answers,
           physical_state: physicalState,
           physical_text: physicalText,
           emotional_state: emotionalState,
@@ -85,11 +99,11 @@ export default function ComprehensiveForm() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Comprehensive Reflection</h2>
         <p className="text-sm text-muted-foreground">
-          A deep inventory of where you&apos;re at (~1 hour)
+          A deep inventory of where you&apos;re at — write freely, use the prompts as guidance
         </p>
       </div>
 
@@ -113,26 +127,42 @@ export default function ComprehensiveForm() {
         onFreeTextChange={setEmotionalText}
       />
 
-      {PROMPTS.map((prompt) => (
-        <div key={prompt.key} className="space-y-2">
-          <Label>{prompt.label}</Label>
-          <Textarea
-            placeholder="Take your time and reflect..."
-            value={answers[prompt.key] || ""}
-            onChange={(e) => updateAnswer(prompt.key, e.target.value)}
-            rows={4}
-          />
-        </div>
-      ))}
-
-      <div className="space-y-2">
-        <Label>Additional thoughts (rich text)</Label>
-        <TiptapEditor
-          content={content || undefined}
-          onChange={setContent}
-          placeholder="Expand on anything above, or write freely..."
-        />
+      {/* Collapsible guidance panel */}
+      <div className="rounded-lg border border-border">
+        <button
+          onClick={() => setGuidanceOpen(!guidanceOpen)}
+          className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {guidanceOpen ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+          Reflection prompts (click to insert)
+        </button>
+        {guidanceOpen && (
+          <div className="border-t border-border px-4 py-3 space-y-1">
+            {PROMPTS.map((prompt, i) => (
+              <button
+                key={i}
+                onClick={() => insertPrompt(prompt)}
+                className="block w-full text-left rounded px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Main writing area */}
+      <TiptapEditor
+        key={editorKey}
+        content={content || undefined}
+        onChange={setContent}
+        placeholder="Begin your reflection..."
+        className="min-h-[400px]"
+      />
 
       <Button
         onClick={handleSave}

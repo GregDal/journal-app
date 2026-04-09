@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
+import { getThemeFromCookie, getThemeClass } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,18 +21,23 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#f5f0eb",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("journal-theme")?.value || "earth";
+  const theme = getThemeFromCookie(`journal-theme=${themeCookie}`);
+  const themeClass = getThemeClass(theme);
+
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${themeClass} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

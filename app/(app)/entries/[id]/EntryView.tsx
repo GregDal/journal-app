@@ -34,8 +34,10 @@ export default function EntryView({
   const promptAnswers = Object.entries(prompts).filter(
     ([k, v]) =>
       !k.endsWith("_state") &&
+      !k.endsWith("_text") &&
       k !== "intensity_before" &&
       k !== "intensity_after" &&
+      k !== "ai_conversation" &&
       typeof v === "string" &&
       v.trim()
   );

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ClaudeProvider } from "@/lib/ai/claude";
 import { getEntrySystemPrompt } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
+import { getMemoryContext } from "@/lib/ai/memory";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { entryId, entryType, entryContent, messages } = await req.json();
+    const { entryId, entryType, entryContent, messages, autoAnalyze } = await req.json();
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -25,9 +26,30 @@ export async function POST(req: NextRequest) {
     }
 
     const provider = new ClaudeProvider(apiKey);
-    const systemPrompt = `${getEntrySystemPrompt(entryType)}\n\nHere is the user's journal entry for context:\n---\n${entryContent}\n---\n\nRespond to the user's message with a reflective question or observation.`;
 
-    const reply = await provider.chat(messages, systemPrompt);
+    // Build system prompt with memory context
+    let systemPrompt = `${getEntrySystemPrompt(entryType)}\n\nHere is the user's journal entry for context:\n---\n${entryContent}\n---\n\n`;
+
+    // Add memory context
+    const memory = await getMemoryContext(supabase, user.id);
+    if (memory.summary) {
+      systemPrompt += `Context from the user's journaling history:\n${memory.summary}\n`;
+      if (memory.themes.length > 0) {
+        systemPrompt += `Recurring themes: ${memory.themes.join(", ")}\n\n`;
+      }
+    }
+
+    if (autoAnalyze) {
+      systemPrompt += "Read this entry carefully. Provide a brief, empathetic observation about what you notice — patterns, emotions, or themes. Then ask one thoughtful follow-up question to help the user reflect deeper. Keep it to 2-3 sentences plus the question.";
+    } else {
+      systemPrompt += "Respond to the user's message with a reflective question or observation.";
+    }
+
+    const chatMessages = autoAnalyze
+      ? [{ role: "user" as const, content: "I just wrote this entry and I'd like to reflect on it with you." }]
+      : messages;
+
+    const reply = await provider.chat(chatMessages, systemPrompt);
 
     // Save conversation
     const allMessages = [

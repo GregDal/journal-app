@@ -9,6 +9,7 @@ import StateTagPicker from "@/components/mood/StateTagPicker";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { scrollIntoViewOnFocus } from "@/lib/hooks/useAutoScroll";
 
 const PROMPTS = [
   { key: "physical", label: "How are you feeling physically right now?" },
@@ -109,6 +110,7 @@ export default function ReflectionForm() {
             placeholder="Take your time..."
             value={answers[prompt.key] || ""}
             onChange={(e) => updateAnswer(prompt.key, e.target.value)}
+            onFocus={scrollIntoViewOnFocus}
             rows={3}
           />
         </div>
