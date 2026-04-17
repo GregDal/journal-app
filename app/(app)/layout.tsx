@@ -32,6 +32,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/search", label: "Search", icon: Search },
   { href: "/insights", label: "Insights", icon: LineChart },
+  { href: "/memory", label: "AI Memory", icon: Brain },
   { href: "/import", label: "Import", icon: Import },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -129,7 +130,8 @@ function FabMenu() {
   const hidden =
     pathname.startsWith("/new/") ||
     pathname.startsWith("/entries/") ||
-    pathname.startsWith("/issues/");
+    pathname.startsWith("/issues/") ||
+    pathname.startsWith("/memory");
 
   if (hidden) return null;
 
