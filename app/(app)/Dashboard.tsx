@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ENTRY_TYPE_CONFIG, MOOD_EMOJIS } from "@/lib/types";
+import { ENTRY_TYPE_CONFIG, ENTRY_TYPE_COLORS, MOOD_EMOJIS } from "@/lib/types";
 import type { Entry, MoodLog } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -35,7 +35,12 @@ export default function Dashboard({ entries, moodLogs }: DashboardProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Dashboard</h2>
+      <div>
+        <h2 className="text-2xl font-semibold">Your Journal</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+        </p>
+      </div>
 
       {/* Mood trend chart */}
       {moodData.length > 1 && (
@@ -48,25 +53,25 @@ export default function Dashboard({ entries, moodLogs }: DashboardProps) {
               <LineChart data={moodData}>
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 />
                 <YAxis
                   domain={[1, 5]}
                   ticks={[1, 2, 3, 4, 5]}
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                   width={30}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
                     borderRadius: "8px",
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="mood"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--primary)"
                   strokeWidth={2}
                   dot={{ r: 4 }}
                 />
@@ -78,11 +83,16 @@ export default function Dashboard({ entries, moodLogs }: DashboardProps) {
 
       {/* Recent entries */}
       <div>
-        <h3 className="mb-3 text-lg font-medium">Recent entries</h3>
+        <h3 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+          Recent entries
+        </h3>
         {entries.length === 0 ? (
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <p>No entries yet. Tap the + button to get started.</p>
+            <CardContent className="flex flex-col items-center gap-2 py-14 text-center">
+              <p className="text-sm font-medium">No entries yet</p>
+              <p className="text-sm text-muted-foreground">
+                Tap the <strong>+</strong> button below to write your first entry
+              </p>
             </CardContent>
           </Card>
         ) : (
@@ -108,24 +118,24 @@ export default function Dashboard({ entries, moodLogs }: DashboardProps) {
                         </span>
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ENTRY_TYPE_COLORS[entry.entry_type]}`}>
                             {config.label}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {new Date(entry.created_at).toLocaleDateString(
                               "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                hour: "numeric",
-                                minute: "2-digit",
-                              }
+                              { month: "short", day: "numeric" }
+                            )}
+                            {" · "}
+                            {new Date(entry.created_at).toLocaleTimeString(
+                              "en-US",
+                              { hour: "numeric", minute: "2-digit" }
                             )}
                           </span>
                         </div>
                         {preview && (
-                          <p className="truncate text-sm text-muted-foreground">
+                          <p className="mt-0.5 truncate text-sm text-muted-foreground">
                             {String(preview)}
                           </p>
                         )}

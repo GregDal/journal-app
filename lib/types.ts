@@ -117,6 +117,15 @@ export const ENTRY_TYPE_CONFIG: Record<
 
 export const MOOD_EMOJIS = ["😞", "😐", "🙂", "😊", "😄"] as const;
 
+export const ENTRY_TYPE_COLORS: Record<EntryType, string> = {
+  quick:         "bg-amber-100  text-amber-800",
+  reflection:    "bg-sky-100    text-sky-800",
+  comprehensive: "bg-emerald-100 text-emerald-800",
+  cbt:           "bg-violet-100 text-violet-800",
+  freeform:      "bg-slate-100  text-slate-700",
+  ai_guided:     "bg-pink-100   text-pink-800",
+};
+
 export const PHYSICAL_STATE_TAGS = [
   "Energized",
   "Rested",

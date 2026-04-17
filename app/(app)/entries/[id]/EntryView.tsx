@@ -1,6 +1,6 @@
 "use client";
 
-import { ENTRY_TYPE_CONFIG, MOOD_EMOJIS } from "@/lib/types";
+import { ENTRY_TYPE_CONFIG, ENTRY_TYPE_COLORS, MOOD_EMOJIS } from "@/lib/types";
 import type { Entry, MoodLog, AIConversation } from "@/lib/types";
 import AIConversationComponent from "@/components/entry/AIConversation";
 import { Badge } from "@/components/ui/badge";
@@ -53,8 +53,10 @@ export default function EntryView({
       </Link>
 
       <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">{config.label}</h2>
+        <div className="space-y-1.5">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${ENTRY_TYPE_COLORS[entry.entry_type]}`}>
+            {config.label}
+          </span>
           <p className="text-sm text-muted-foreground">
             {new Date(entry.created_at).toLocaleDateString("en-US", {
               weekday: "long",

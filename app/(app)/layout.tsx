@@ -88,8 +88,11 @@ function Sidebar() {
 
   return (
     <div className="flex h-full flex-col gap-2 p-4">
-      <div className="mb-4 px-3">
-        <h1 className="text-lg font-semibold tracking-tight">Journal</h1>
+      <div className="mb-4 flex items-center gap-2.5 px-3">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary">
+          <BookOpen className="h-3.5 w-3.5 text-primary-foreground" />
+        </div>
+        <h1 className="text-base font-semibold tracking-tight">Journal</h1>
       </div>
       <nav className="flex flex-1 flex-col gap-1">
         {NAV_ITEMS.map((item) => (
